@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Disasters | Disaster Management System</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body class="dashboard-body">
+    <div class="layout-wrapper">
+      <aside class="sidebar shadow-sm" id="sidebar">
+        <div class="sidebar-brand">
+          <span class="brand-icon"><i class="bi bi-shield-shaded"></i></span>
+          <div>
+            <h5 class="mb-0">DMS</h5>
+            <small>Control Center</small>
+          </div>
+        </div>
+        <nav class="nav flex-column sidebar-nav">
+          <a class="nav-link" href="dashboard.html"><i class="bi bi-house-door"></i> Dashboard</a>
+          <a class="nav-link active" href="disasters.html"><i class="bi bi-tornado"></i> Disasters</a>
+          <button class="nav-link btn text-start" id="logoutBtn" type="button">
+            <i class="bi bi-box-arrow-right"></i> Logout
+          </button>
+        </nav>
+      </aside>
+      <main class="main-content">
+        <header class="top-header shadow-sm">
+          <button class="btn btn-outline-primary d-lg-none" id="sidebarToggle" type="button">
+            <i class="bi bi-list"></i>
+          </button>
+          <div>
+            <h4 class="mb-0">Disaster Management</h4>
+            <small class="text-muted">Track and respond to disaster incidents</small>
+          </div>
+          <div class="ms-auto fw-semibold" id="welcomeUser"></div>
+        </header>
+
+        <section class="content p-3 p-lg-4">
+          <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body">
+              <div class="d-flex flex-wrap gap-2 align-items-center justify-content-between mb-3">
+                <div class="input-group search-group">
+                  <span class="input-group-text bg-white border-end-0"><i class="bi bi-search"></i></span>
+                  <input
+                    type="search"
+                    id="searchInput"
+                    class="form-control border-start-0"
+                    placeholder="Search disasters..."
+                  />
+                </div>
+                <button class="btn btn-primary dms-btn" id="openCreateModalBtn" type="button">
+                  <i class="bi bi-plus-circle"></i> Create Disaster
+                </button>
+              </div>
+
+              <div id="disasterStateContainer">
+                <div id="loadingState" class="state-box text-center py-5 d-none">
+                  <div class="spinner-border text-primary mb-3" role="status"></div>
+                  <p class="mb-0">Loading disasters...</p>
+                </div>
+                <div id="errorState" class="state-box text-center py-5 d-none">
+                  <i class="bi bi-wifi-off fs-2 text-danger"></i>
+                  <p class="fw-semibold mt-2 mb-1">Unable to load disasters.</p>
+                  <p class="text-muted mb-3">Please check the server connection.</p>
+                  <button class="btn btn-outline-primary" id="retryLoadBtn" type="button">Retry</button>
+                </div>
+                <div id="emptyState" class="state-box text-center py-5 d-none">
+                  <i class="bi bi-inbox fs-2 text-secondary"></i>
+                  <p class="fw-semibold mt-2 mb-1">No disasters found.</p>
+                  <p class="text-muted mb-3">Create your first disaster to get started.</p>
+                  <button class="btn btn-primary dms-btn" id="emptyCreateBtn" type="button">
+                    <i class="bi bi-plus-circle"></i> Create Disaster
+                  </button>
+                </div>
+                <div class="table-responsive d-none" id="tableWrapper">
+                  <table class="table align-middle">
+                    <thead>
+                      <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Severity</th>
+                        <th>Status</th>
+                        <th>Start Date</th>
+                        <th>Affected People</th>
+                        <th class="text-end">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody id="disasterTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div class="modal fade" id="disasterModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4">
+          <form id="disasterForm">
+            <div class="modal-header">
+              <h5 class="modal-title" id="disasterModalTitle">Create Disaster</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <div id="disasterFormAlert" class="alert d-none" role="alert"></div>
+              <input type="hidden" id="disasterId" />
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label class="form-label">Disaster Name</label>
+                  <input type="text" class="form-control" id="disasterName" required />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Disaster Type</label>
+                  <select class="form-select" id="disasterType" required>
+                    <option value="">Select disaster type</option>
+                    <option value="Flood">Flood</option>
+                    <option value="Cyclone">Cyclone</option>
+                    <option value="Earthquake">Earthquake</option>
+                    <option value="Landslide">Landslide</option>
+                    <option value="Fire">Fire</option>
+                    <option value="Drought">Drought</option>
+                    <option value="Heatwave">Heatwave</option>
+                    <option value="Pandemic">Pandemic</option>
+                    <option value="Industrial Accident">Industrial Accident</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Description</label>
+                  <textarea class="form-control" id="disasterDescription" rows="3"></textarea>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Severity</label>
+                  <select class="form-select" id="disasterSeverity" required>
+                    <option value="">Select severity</option>
+                    <option value="Critical">Critical</option>
+                    <option value="High">High</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Low">Low</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" id="disasterStatus" required>
+                    <option value="">Select status</option>
+                    <option value="Active">Active</option>
+                    <option value="Monitoring">Monitoring</option>
+                    <option value="Resolved">Resolved</option>
+                    <option value="Closed">Closed</option>
+                  </select>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Start Date</label>
+                  <input type="datetime-local" class="form-control" id="disasterStartDate" required />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">End Date</label>
+                  <input type="datetime-local" class="form-control" id="disasterEndDate" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label">Affected People</label>
+                  <input type="number" min="0" class="form-control" id="disasterAffectedPeople" value="0" required />
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary dms-btn" id="saveDisasterBtn">Create Disaster</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4">
+          <div class="modal-header">
+            <h5 class="modal-title">Delete Disaster?</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p class="mb-1">Are you sure you want to delete this disaster?</p>
+            <p class="text-muted mb-0">This action cannot be undone.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast-container position-fixed top-0 end-0 p-3">
+      <div id="appToast" class="toast align-items-center border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="toastBody"></div>
+          <button
+            type="button"
+            class="btn-close btn-close-white me-2 m-auto"
+            data-bs-dismiss="toast"
+            aria-label="Close"
+          ></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="js/disasters.js"></script>
+  </body>
+</html>
